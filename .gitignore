@@ -1,0 +1,43 @@
+# Python environments and bytecode
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Test and tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Angular dependencies and generated output
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Large datasets
+/data/Combined_Flights_2022.csv
+/data/flights_sample.csv
+
+# Original model binaries and generated visualizations
+/models/*.pkl
+/models/*.joblib
+/models/*.png
+
+# Common large data/model formats
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.onnx
+
+# Logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db

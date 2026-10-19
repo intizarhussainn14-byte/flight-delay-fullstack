@@ -1,0 +1,204 @@
+<main class="shell">
+  <nav class="topbar">
+    <a class="brand" href="./">
+      <span class="brand-icon" aria-hidden="true">✈</span>
+      Flight<span class="brand-accent">Insight</span>
+    </a>
+    <span class="badge">
+      {{ deployedStatic ? 'Static demo' : 'Local research app' }}
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <p class="eyebrow">FLIGHT DELAY INTELLIGENCE</p>
+      <h1>A clearer view<br />of your next arrival.</h1>
+      <p class="intro">
+        Explore your Random Forest model’s estimate of whether
+        a flight will arrive at least 15 minutes late.
+      </p>
+    </div>
+
+    <div class="hero-card">
+      <span class="hero-plane" aria-hidden="true">✈</span>
+      <div>
+        <p class="eyebrow">POWERED BY YOUR TRAINED MODEL</p>
+        <h2>Random Forest</h2>
+        <p>41 input features · Binary classification</p>
+      </div>
+    </div>
+  </header>
+
+  @if (deployedStatic) {
+    <aside class="notice">
+      <strong>Static demonstration</strong>
+      Run Angular and Flask locally to generate predictions.
+    </aside>
+  }
+
+  <div class="workspace">
+    <section class="card input-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">01 / FLIGHT DETAILS</p>
+          <h2>Build your flight profile</h2>
+          <p>Load the verified sample or enter all model inputs.</p>
+        </div>
+
+        <div class="actions">
+          <button
+            class="sample-button"
+            type="button"
+            (click)="loadSample()"
+            [disabled]="loading()"
+          >
+            Load sample
+          </button>
+          <button
+            type="button"
+            (click)="clear()"
+            [disabled]="loading()"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="input-note">
+        <strong>Input guide</strong>
+        Scheduled times use HHMM: 950 means 09:50.
+        Airline, airport, and route values must follow the training schema.
+        All {{ fields.length }} fields are required.
+      </div>
+
+      <form #flightForm="ngForm" (ngSubmit)="submit()">
+        <fieldset [disabled]="loading()">
+          <div class="grid">
+            @for (field of fields; track field.name) {
+              <label>
+                <span>{{ field.label }}</span>
+
+                @if (field.kind === 'number') {
+                  <input
+                    type="number"
+                    step="any"
+                    [name]="field.name"
+                    [(ngModel)]="values[field.name]"
+                    placeholder="Enter a number"
+                    required
+                  />
+                } @else {
+                  <input
+                    type="text"
+                    [name]="field.name"
+                    [(ngModel)]="values[field.name]"
+                    placeholder="Enter training-schema value"
+                    required
+                  />
+                }
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <div class="submit-row">
+          <p>
+            {{ flightForm.invalid
+              ? 'Complete every field to enable prediction.'
+              : 'Flight profile ready for prediction.' }}
+          </p>
+          <button
+            class="primary"
+            type="submit"
+            [disabled]="loading() || deployedStatic || flightForm.invalid"
+          >
+            {{ loading() ? 'Analyzing flight…' : 'Analyze flight →' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="sidebar">
+      <section class="card prediction-card" aria-live="polite"
+        [attr.aria-busy]="loading()">
+        <p class="eyebrow">02 / PREDICTION</p>
+
+        @if (loading()) {
+          <div class="empty-state">
+            <span class="result-symbol" aria-hidden="true">✈</span>
+            <h2>Analyzing your flight</h2>
+            <p>The local model is processing your inputs.</p>
+          </div>
+        } @else if (result(); as prediction) {
+          <div
+            class="status"
+            [class.delayed]="prediction.prediction === 1"
+          >
+            {{ prediction.prediction === 1
+              ? 'Delay predicted'
+              : 'Below delay threshold' }}
+          </div>
+
+          <h2 class="result-title">
+            {{ prediction.prediction === 1
+              ? 'Arrival delay likely'
+              : 'No 15-minute delay predicted' }}
+          </h2>
+
+          <p class="muted">Model-estimated probability of a 15+ minute delay</p>
+
+          <div class="probability">
+            {{ prediction.delay_probability * 100 | number:'1.1-1' }}<span>%</span>
+          </div>
+
+          <div
+            class="probability-track"
+            role="progressbar"
+            aria-label="Estimated delay probability"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-valuenow]="prediction.delay_probability * 100"
+          >
+            <div
+              class="probability-fill"
+              [class.delayed]="prediction.prediction === 1"
+              [style.width.%]="prediction.delay_probability * 100"
+            ></div>
+          </div>
+
+          <div class="scale"><span>0%</span><span>100%</span></div>
+          <p class="disclaimer">{{ prediction.disclaimer }}</p>
+        } @else {
+          <div class="empty-state">
+            <span class="result-symbol" aria-hidden="true">✈</span>
+            <h2>Your result lands here</h2>
+            <p>
+              Load a sample, then select Analyze flight to see
+              the model’s prediction.
+            </p>
+          </div>
+        }
+
+        @if (error()) {
+          <p class="error" role="alert">{{ error() }}</p>
+        }
+      </section>
+
+      <section class="card model-card">
+        <p class="eyebrow">MODEL NOTES</p>
+        <h3>Understand the estimate</h3>
+        <p>
+          The target is an arrival delay of at least 15 minutes.
+          The model does not predict the number of delay minutes.
+        </p>
+        <div class="model-row"><span>Algorithm</span><strong>Random Forest</strong></div>
+        <div class="model-row"><span>Input features</span><strong>41</strong></div>
+        <div class="model-row"><span>Execution</span><strong>Local Flask API</strong></div>
+        <p class="small">
+          Teaching prototype using historical flight data.
+          Check your airline for actual flight status.
+        </p>
+      </section>
+    </aside>
+  </div>
+</main>
