@@ -4,6 +4,7 @@ import math
 import joblib
 import pandas as pd
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 BASE = Path(__file__).resolve().parent
 BUNDLE = joblib.load(BASE / "models/model_bundle.joblib")
@@ -19,6 +20,22 @@ LABELS = {
 }
 
 app = Flask(__name__)
+
+# Allow the deployed Angular frontend and local development.
+CORS(
+    app,
+    resources={
+        r"/predict": {
+            "origins": [
+                "https://intizarhussainn14-byte.github.io",
+                "http://localhost:4200",
+                "http://127.0.0.1:4200",
+            ],
+            "methods": ["POST", "OPTIONS"],
+            "allow_headers": ["Content-Type"],
+        }
+    },
+)
 
 
 @app.get("/health")
@@ -95,4 +112,5 @@ def predict():
 
 
 if __name__ == "__main__":
+    # Local development only. Render starts the app using Gunicorn.
     app.run(host="127.0.0.1", port=5000, debug=False)
