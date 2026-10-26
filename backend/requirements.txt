@@ -35,3 +35,5 @@ threadpoolctl==3.7.0
 tzdata==2026.4
 urllib3==2.8.0
 Werkzeug==3.1.9
+Flask-Cors>=6,<7
+gunicorn>=23,<24; platform_system != "Windows"
