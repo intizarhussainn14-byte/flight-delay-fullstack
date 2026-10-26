@@ -17,8 +17,7 @@ import {
 })
 export class App {
   readonly fields = FEATURES;
-  readonly deployedStatic =
-    !['localhost', '127.0.0.1'].includes(window.location.hostname);
+  readonly deployedStatic = false;
 
   values: Record<string, string | number | null> = this.emptyValues();
   loading = signal(false);
@@ -48,11 +47,6 @@ export class App {
 
     this.error.set('');
     this.result.set(null);
-
-    if (this.deployedStatic) {
-      this.error.set('Predictions require Flask and Angular running locally.');
-      return;
-    }
 
     const payload: Record<string, string | number> = {};
 
@@ -91,7 +85,8 @@ export class App {
       },
       error: err => {
         this.error.set(
-          err.error?.error || 'Cannot reach the API. Check the Flask terminal.'
+          err.error?.error ||
+            'The prediction service is unavailable. Please try again.'
         );
         this.loading.set(false);
       },
