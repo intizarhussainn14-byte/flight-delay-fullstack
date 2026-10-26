@@ -15,6 +15,9 @@ export class PredictionService {
   private http = inject(HttpClient);
 
   predict(payload: Record<string, string | number>) {
-    return this.http.post<PredictionResponse>('/api/predict', payload);
+    return this.http.post<PredictionResponse>(
+      'https://flight-delay-fullstack.vercel.app/predict',
+      payload
+    );
   }
 }
