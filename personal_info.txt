@@ -1,0 +1,5 @@
+Name: Intizar Hussain
+Reg No: 232010
+Class: BSSE_VII_B
+Subject: Devops Lab
+Instructor: Ali javed Pirzada
